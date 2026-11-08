@@ -6,12 +6,12 @@ namespace Xml_lab2.Strategies
 {
     public class DomAnalyzer : IXmlAnalyzerStrategy
     {
-        public List<SportRecord> Analyze(string filePath, string keyword)
+        public List<SportRecord> Analyze(string filePath, string attributeName, string attributeValue, string keyword)
         {
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(filePath);
 
-            string xpath = BuildXPath(keyword);
+            string xpath = BuildXPath(attributeName, attributeValue, keyword);
             XmlNodeList members = xmlDoc.SelectNodes(xpath);
 
             List<SportRecord> results = new List<SportRecord>();
@@ -19,19 +19,37 @@ namespace Xml_lab2.Strategies
             return results;
         }
 
-        private static string BuildXPath(string keyword)
+        private static string BuildXPath(string attributeName, string attributeValue, string keyword)
         {
-            if (string.IsNullOrWhiteSpace(keyword))
+            List<string> conditions = new List<string>();
+
+            if (!string.IsNullOrEmpty(attributeName) && !string.IsNullOrEmpty(attributeValue))
+            {
+                string v = ToXPathLiteral(attributeValue);
+                if (attributeName == "Section")
+                {
+                    conditions.Add("ancestor::Section[@Name=" + v + "]");
+                }
+                else
+                {
+                    conditions.Add("@" + attributeName + "=" + v);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                string k = ToXPathLiteral(keyword.Trim());
+                string memberCondition = "@*[contains(., " + k + ")]";
+                string sectionCondition = "ancestor::Section[@Name[contains(., " + k + ")] or Schedule/@*[contains(., " + k + ")]]";
+                conditions.Add("(" + memberCondition + " or " + sectionCondition + ")");
+            }
+
+            if (conditions.Count == 0)
             {
                 return "//Member";
             }
 
-            string k = ToXPathLiteral(keyword.Trim());
-
-            string memberCondition = "@*[contains(., " + k + ")]";
-            string sectionCondition = "ancestor::Section[@Name[contains(., " + k + ")] or Schedule/@*[contains(., " + k + ")]]";
-
-            return "//Member[" + memberCondition + " or " + sectionCondition + "]";
+            return "//Member[" + string.Join(" and ", conditions) + "]";
         }
 
         private static string ToXPathLiteral(string value)

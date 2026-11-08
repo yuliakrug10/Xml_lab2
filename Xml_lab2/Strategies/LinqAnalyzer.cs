@@ -7,19 +7,20 @@ namespace Xml_lab2.Strategies
 {
     public class LinqAnalyzer : IXmlAnalyzerStrategy
     {
-        public List<SportRecord> Analyze(string filePath, string keyword)
+        public List<SportRecord> Analyze(string filePath, string attributeName, string attributeValue, string keyword)
         {
             XDocument doc = XDocument.Load(filePath);
-            return BuildQuery(doc, keyword).ToList();
+            return BuildQuery(doc, attributeName, attributeValue, keyword).ToList();
         }
 
-        private IEnumerable<SportRecord> BuildQuery(XDocument doc, string keyword)
+        private IEnumerable<SportRecord> BuildQuery(XDocument doc, string attributeName, string attributeValue, string keyword)
         {
             return from section in doc.Descendants("Section")
                    let sectionName = GetSectionName(section)
                    let scheduleAttrs = GetAttributes(section.Element("Schedule"))
                    from member in section.Descendants("Member")
                    let attrs = GetAttributes(member)
+                   where AnalyzerHelper.MatchesAttribute(attrs, sectionName, attributeName, attributeValue)
                    where AnalyzerHelper.Matches(AnalyzerHelper.SearchValues(attrs, sectionName, scheduleAttrs), keyword)
                    select AnalyzerHelper.BuildRecord(attrs, sectionName, AnalyzerHelper.FormatSchedule(scheduleAttrs));
         }

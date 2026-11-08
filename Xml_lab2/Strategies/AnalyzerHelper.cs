@@ -26,6 +26,26 @@ namespace Xml_lab2.Strategies
             return false;
         }
 
+        public static bool MatchesAttribute(Dictionary<string, string> memberAttributes, string section, string attributeName, string attributeValue)
+        {
+            if (string.IsNullOrEmpty(attributeName) || string.IsNullOrEmpty(attributeValue))
+            {
+                return true;
+            }
+
+            if (attributeName == "Section")
+            {
+                return section == attributeValue;
+            }
+
+            if (!memberAttributes.ContainsKey(attributeName))
+            {
+                return false;
+            }
+
+            return memberAttributes[attributeName] == attributeValue;
+        }
+
         public static string FormatSchedule(Dictionary<string, string> scheduleAttributes)
         {
             List<string> parts = new List<string>();

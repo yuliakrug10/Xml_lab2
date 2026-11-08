@@ -7,13 +7,17 @@ namespace Xml_lab2.Strategies
     public class SaxAnalyzer : IXmlAnalyzerStrategy
     {
         private List<SportRecord> _results;
+        private string _attributeName;
+        private string _attributeValue;
         private string _keyword;
         private string _currentSection;
         private Dictionary<string, string> _currentSchedule;
 
-        public List<SportRecord> Analyze(string filePath, string keyword)
+        public List<SportRecord> Analyze(string filePath, string attributeName, string attributeValue, string keyword)
         {
             _results = new List<SportRecord>();
+            _attributeName = attributeName;
+            _attributeValue = attributeValue;
             _keyword = keyword;
             _currentSection = "";
             _currentSchedule = new Dictionary<string, string>();
@@ -58,8 +62,10 @@ namespace Xml_lab2.Strategies
                     break;
 
                 case "Member":
+                    bool attributeOk = AnalyzerHelper.MatchesAttribute(attrs, _currentSection, _attributeName, _attributeValue);
                     List<string> values = AnalyzerHelper.SearchValues(attrs, _currentSection, _currentSchedule);
-                    if (AnalyzerHelper.Matches(values, _keyword))
+                    bool keywordOk = AnalyzerHelper.Matches(values, _keyword);
+                    if (attributeOk && keywordOk)
                     {
                         string schedule = AnalyzerHelper.FormatSchedule(_currentSchedule);
                         _results.Add(AnalyzerHelper.BuildRecord(attrs, _currentSection, schedule));
