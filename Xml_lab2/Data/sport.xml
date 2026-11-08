@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SportClub Name="Спортивний клуб університету">
+	<Section Name="Баскетбол" Coach="Петренко Іван Васильович">
+		<Schedule Days="Пн, Ср" Time="18:00-19:30" Place="Спортзал корпусу 2"/>
+		<Members>
+			<Member Name="Іваненко Олег" Faculty="ФКНК" Course="2"/>
+			<Member Name="Коваль Андрій" Faculty="ФІТ" Course="3" Rank="КМС"/>
+			<Member Name="Петренко Іван" Faculty="ФКНК" Role="Викладач" Position="Тренер"/>
+		</Members>
+		<Competitions>
+			<Competition Name="Кубок університету з баскетболу" Date="2026-11-20" Place="Спортзал корпусу 2"/>
+		</Competitions>
+	</Section>
+
+	<Section Name="Волейбол" Coach="Сидоренко Марина Олегівна">
+		<Schedule Days="Вт, Чт" Time="17:00-18:30" Place="Спортзал корпусу 1"/>
+		<Members>
+			<Member Name="Шевченко Анна" Faculty="ФКНК" Course="1"/>
+			<Member Name="Мельник Дарина" Faculty="Економічний" Course="4" Rank="Розряд I"/>
+			<Member Name="Сидоренко Марина" Faculty="ФКНК" Role="Викладач" Position="Доцент" Degree="к.ф.-м.н."/>
+		</Members>
+		<Competitions>
+			<Competition Name="Міжфакультетський турнір" Date="2026-12-05" Place="Спортзал корпусу 1"/>
+			<Competition Name="Студентська ліга" Date="2027-02-14" Place="Палац спорту"/>
+		</Competitions>
+	</Section>
+
+	<Section Name="Бокс" Coach="Бондар Олексій Петрович">
+		<Schedule Days="Вт, Пт" Time="19:00-20:30" Place="Зал єдиноборств"/>
+		<Members>
+			<Member Name="Ткаченко Максим" Faculty="ФІТ" Course="2" Rank="Розряд II"/>
+			<Member Name="Бондар Олексій" Faculty="Фізичного виховання" Role="Викладач" Position="Тренер"/>
+		</Members>
+		<Competitions>
+			<Competition Name="Відкритий ринг університету" Date="2026-11-28" Place="Зал єдиноборств"/>
+		</Competitions>
+	</Section>
+</SportClub>
