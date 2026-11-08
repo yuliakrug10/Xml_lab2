@@ -119,6 +119,94 @@ namespace Xml_lab2
             }
         }
 
+        private async void OpenFromDrive_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                string type = await DisplayActionSheet("Що відкрити з Google Drive?", "Скасувати", null, "XML-файл", "XSL-файл");
+                if (type != "XML-файл" && type != "XSL-файл")
+                {
+                    return;
+                }
+
+                bool isXsl = type == "XSL-файл";
+                string extension = ".xml";
+                if (isXsl)
+                {
+                    extension = ".xsl";
+                }
+
+                Dictionary<string, string> files = await _viewModel.GetDriveFilesAsync(extension);
+                if (files.Count == 0)
+                {
+                    await DisplayAlert("Google Drive", "На Google Drive немає файлів " + extension, "OK");
+                    return;
+                }
+
+                string[] names = new string[files.Count];
+                files.Keys.CopyTo(names, 0);
+
+                string chosen = await DisplayActionSheet("Оберіть файл", "Скасувати", null, names);
+                if (chosen == null || !files.ContainsKey(chosen))
+                {
+                    return;
+                }
+
+                await _viewModel.OpenFromDriveAsync(files[chosen], chosen, isXsl);
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Помилка", ex.Message, "OK");
+            }
+        }
+
+        private async void SaveToDrive_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                string filteredXml = "Відфільтровані дані (XML)";
+                string filteredHtml = "Відфільтровані дані (HTML)";
+                string sourceXml = "Поточний XML-файл";
+                string sourceXsl = "Поточний XSL-файл";
+
+                string choice = await DisplayActionSheet("Що зберегти на Google Drive?", "Скасувати", null, filteredXml, filteredHtml, sourceXml, sourceXsl);
+
+                string savedName = null;
+                if (choice == filteredXml || choice == filteredHtml)
+                {
+                    string format = "XML";
+                    if (choice == filteredHtml)
+                    {
+                        format = "HTML";
+                    }
+
+                    string name = await DisplayPromptAsync("Google Drive", "Назва файлу (без розширення):", "OK", "Скасувати", null, -1, null, "filtered");
+                    if (string.IsNullOrWhiteSpace(name))
+                    {
+                        return;
+                    }
+                    savedName = await _viewModel.SaveFilteredToDriveAsync(format, name);
+                }
+                else if (choice == sourceXml)
+                {
+                    savedName = await _viewModel.UploadSourceFileAsync(false);
+                }
+                else if (choice == sourceXsl)
+                {
+                    savedName = await _viewModel.UploadSourceFileAsync(true);
+                }
+
+                if (savedName != null)
+                {
+                    await DisplayAlert("Google Drive", "Файл " + savedName + " збережено на Google Drive.", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Помилка", ex.Message, "OK");
+            }
+        }
+
         public bool IsExiting { get; private set; }
 
         public async Task AskExitAsync()

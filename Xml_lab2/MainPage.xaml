@@ -12,6 +12,7 @@
         <HorizontalStackLayout Grid.Row="0" Spacing="8">
             <Button Text="Відкрити XML" Clicked="OpenXml_Clicked" />
             <Button Text="Відкрити XSL" Clicked="OpenXsl_Clicked" />
+            <Button Text="Відкрити з Google Drive" Clicked="OpenFromDrive_Clicked" />
             <Label Text="{Binding FilesInfo}" VerticalOptions="Center" Margin="10,0,0,0" />
         </HorizontalStackLayout>
 
@@ -48,6 +49,7 @@
         <HorizontalStackLayout Grid.Row="4" Spacing="8">
             <Button Text="Трансформувати в HTML" Clicked="Transform_Clicked" />
             <Button Text="Зберегти XML" Clicked="SaveXml_Clicked" />
+            <Button Text="Зберегти на Google Drive" Clicked="SaveToDrive_Clicked" />
             <Button Text="Вийти" Clicked="Exit_Clicked" BackgroundColor="IndianRed" />
         </HorizontalStackLayout>
     </Grid>

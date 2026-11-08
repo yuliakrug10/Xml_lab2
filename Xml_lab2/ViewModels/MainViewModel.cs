@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xml_lab2.Cloud;
 using Xml_lab2.Logging;
@@ -24,6 +25,7 @@ namespace Xml_lab2.ViewModels
         private LocalFileManager _localFileManager = new LocalFileManager();
         private HtmlTransformer _transformer = new HtmlTransformer();
         private Logger _logger = Logger.GetInstance();
+        private GoogleDriveManager _drive = new GoogleDriveManager();
 
         private string _selectedAnalyzer = "SAX";
         private string _selectedAttribute;
@@ -324,6 +326,99 @@ namespace Xml_lab2.ViewModels
             _logger.LogEvent(LogLevel.Transformation, "Збережено у файл " + Path.GetFileName(outHtmlPath));
             StatusText = "Трансформація успішна: " + outHtmlPath;
             return outHtmlPath;
+        }
+
+        private async Task ConnectDriveAsync()
+        {
+            StatusText = "Підключення до Google Drive...";
+            bool success = await _drive.AuthenticateAsync();
+            if (!success)
+            {
+                throw new Exception("Не вдалося увійти в Google Drive.");
+            }
+        }
+
+        public async Task<Dictionary<string, string>> GetDriveFilesAsync(string extension)
+        {
+            await ConnectDriveAsync();
+            Dictionary<string, string> files = await _drive.GetFilesListAsync(extension);
+            StatusText = "Знайдено на Google Drive файлів " + extension + ": " + files.Count;
+            return files;
+        }
+
+        public async Task OpenFromDriveAsync(string fileId, string fileName, bool isXsl)
+        {
+            await ConnectDriveAsync();
+            string content = await _drive.DownloadFileAsync(fileId);
+
+            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Xml_lab2", "Drive");
+            Directory.CreateDirectory(folder);
+            string localPath = Path.Combine(folder, Path.GetFileName(fileName));
+            _localFileManager.SaveToFile(content, localPath);
+
+            if (isXsl)
+            {
+                LoadXsl(localPath);
+            }
+            else
+            {
+                LoadXml(localPath);
+            }
+
+            StatusText = "Завантажено з Google Drive: " + fileName;
+        }
+
+        public async Task<string> SaveFilteredToDriveAsync(string format, string fileName)
+        {
+            List<SportRecord> data = new List<SportRecord>(_sportsRecords);
+            if (data.Count == 0)
+            {
+                throw new InvalidOperationException("Немає відфільтрованих даних для збереження. Спочатку виконайте пошук.");
+            }
+
+            await ConnectDriveAsync();
+
+            CloudDocumentSaver saver = CreateSaver(format);
+            string savedName = await saver.SaveAsync(data, fileName, _drive);
+
+            _logger.LogEvent(LogLevel.Saving, "Відфільтровані дані збережено на Google Drive у файл " + savedName);
+            StatusText = "Збережено на Google Drive: " + savedName;
+            return savedName;
+        }
+
+        private CloudDocumentSaver CreateSaver(string format)
+        {
+            if (format == "HTML")
+            {
+                return new HtmlCloudSaver();
+            }
+            return new XmlCloudSaver();
+        }
+
+        public async Task<string> UploadSourceFileAsync(bool isXsl)
+        {
+            string path = _xmlFilePath;
+            string mimeType = "text/xml";
+            if (isXsl)
+            {
+                path = _xslFilePath;
+                mimeType = "application/xslt+xml";
+            }
+
+            if (path == null)
+            {
+                throw new InvalidOperationException("Спочатку відкрийте файл, який хочете зберегти на Google Drive.");
+            }
+
+            await ConnectDriveAsync();
+
+            string fileName = Path.GetFileName(path);
+            string content = _localFileManager.LoadFromFile(path);
+            await _drive.UploadFileAsync(fileName, content, mimeType);
+
+            _logger.LogEvent(LogLevel.Saving, "Файл " + fileName + " збережено на Google Drive");
+            StatusText = "Збережено на Google Drive: " + fileName;
+            return fileName;
         }
 
         public void ClearData()
