@@ -17,12 +17,13 @@ namespace Xml_lab2.Strategies
         {
             return from section in doc.Descendants("Section")
                    let sectionName = GetSectionName(section)
+                   let sectionAttrs = GetAttributes(section)
                    let scheduleAttrs = GetAttributes(section.Element("Schedule"))
                    from member in section.Descendants("Member")
                    let attrs = GetAttributes(member)
                    where AnalyzerHelper.MatchesAttribute(attrs, sectionName, attributeName, attributeValue)
                    where AnalyzerHelper.Matches(AnalyzerHelper.SearchValues(attrs, sectionName, scheduleAttrs), keyword)
-                   select AnalyzerHelper.BuildRecord(attrs, sectionName, AnalyzerHelper.FormatSchedule(scheduleAttrs));
+                   select AnalyzerHelper.BuildRecord(attrs, sectionName, sectionAttrs, scheduleAttrs);
         }
 
         private static string GetSectionName(XElement section)

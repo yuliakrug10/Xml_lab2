@@ -61,8 +61,9 @@ namespace Xml_lab2.Strategies
             return string.Join(" ", parts);
         }
 
-        public static SportRecord BuildRecord(Dictionary<string, string> memberAttributes, string section, string schedule)
+        public static SportRecord BuildRecord(Dictionary<string, string> memberAttributes, string section, Dictionary<string, string> sectionAttributes, Dictionary<string, string> scheduleAttributes)
         {
+            string schedule = FormatSchedule(scheduleAttributes);
             string name = "";
             string faculty = "";
 
@@ -84,6 +85,19 @@ namespace Xml_lab2.Strategies
                 {
                     record.ExtraAttributes[attr.Key] = attr.Value;
                 }
+            }
+
+            foreach (KeyValuePair<string, string> attr in sectionAttributes)
+            {
+                if (attr.Key != "Name")
+                {
+                    record.SectionAttributes[attr.Key] = attr.Value;
+                }
+            }
+
+            foreach (KeyValuePair<string, string> attr in scheduleAttributes)
+            {
+                record.ScheduleAttributes[attr.Key] = attr.Value;
             }
 
             return record;

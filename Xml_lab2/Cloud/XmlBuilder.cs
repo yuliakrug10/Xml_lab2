@@ -16,7 +16,20 @@ namespace Xml_lab2.Cloud
                 if (!membersBySection.ContainsKey(record.SportSection))
                 {
                     XElement section = new XElement("Section", new XAttribute("Name", record.SportSection));
-                    section.Add(new XElement("Schedule", new XAttribute("Days", record.Schedule)));
+                    foreach (KeyValuePair<string, string> attr in record.SectionAttributes)
+                    {
+                        section.Add(new XAttribute(attr.Key, attr.Value));
+                    }
+
+                    if (record.ScheduleAttributes.Count > 0)
+                    {
+                        XElement schedule = new XElement("Schedule");
+                        foreach (KeyValuePair<string, string> attr in record.ScheduleAttributes)
+                        {
+                            schedule.Add(new XAttribute(attr.Key, attr.Value));
+                        }
+                        section.Add(schedule);
+                    }
 
                     XElement members = new XElement("Members");
                     section.Add(members);

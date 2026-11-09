@@ -12,6 +12,7 @@ namespace Xml_lab2.Strategies
         private string _keyword;
         private string _currentSection;
         private Dictionary<string, string> _currentSchedule;
+        private Dictionary<string, string> _currentSectionAttributes;
 
         public List<SportRecord> Analyze(string filePath, string attributeName, string attributeValue, string keyword)
         {
@@ -21,6 +22,7 @@ namespace Xml_lab2.Strategies
             _keyword = keyword;
             _currentSection = "";
             _currentSchedule = new Dictionary<string, string>();
+            _currentSectionAttributes = new Dictionary<string, string>();
 
             XmlTextReader xmlReader = new XmlTextReader(filePath);
             try
@@ -54,6 +56,7 @@ namespace Xml_lab2.Strategies
                     {
                         _currentSection = attrs["Name"];
                     }
+                    _currentSectionAttributes = attrs;
                     _currentSchedule = new Dictionary<string, string>();
                     break;
 
@@ -67,8 +70,7 @@ namespace Xml_lab2.Strategies
                     bool keywordOk = AnalyzerHelper.Matches(values, _keyword);
                     if (attributeOk && keywordOk)
                     {
-                        string schedule = AnalyzerHelper.FormatSchedule(_currentSchedule);
-                        _results.Add(AnalyzerHelper.BuildRecord(attrs, _currentSection, schedule));
+                        _results.Add(AnalyzerHelper.BuildRecord(attrs, _currentSection, _currentSectionAttributes, _currentSchedule));
                     }
                     break;
             }

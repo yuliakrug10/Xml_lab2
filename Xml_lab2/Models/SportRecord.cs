@@ -10,6 +10,8 @@ namespace Xml_lab2.Models
         public string Schedule { get; set; }
 
         public Dictionary<string, string> ExtraAttributes { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> SectionAttributes { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> ScheduleAttributes { get; set; } = new Dictionary<string, string>();
 
         public string Details
         {

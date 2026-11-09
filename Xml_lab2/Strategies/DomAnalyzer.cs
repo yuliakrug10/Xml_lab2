@@ -72,26 +72,27 @@ namespace Xml_lab2.Strategies
             foreach (XmlNode member in members)
             {
                 string sectionName = "";
-                string schedule = "";
+                Dictionary<string, string> sectionAttrs = new Dictionary<string, string>();
+                Dictionary<string, string> scheduleAttrs = new Dictionary<string, string>();
 
                 XmlNode section = member.SelectSingleNode("ancestor::Section");
 
                 if (section != null)
                 {
-                    XmlAttribute nameAttr = section.Attributes["Name"];
-                    if (nameAttr != null)
+                    sectionAttrs = GetAttributes(section);
+                    if (sectionAttrs.ContainsKey("Name"))
                     {
-                        sectionName = nameAttr.Value;
+                        sectionName = sectionAttrs["Name"];
                     }
 
                     XmlNode scheduleNode = section.SelectSingleNode("Schedule");
                     if (scheduleNode != null)
                     {
-                        schedule = AnalyzerHelper.FormatSchedule(GetAttributes(scheduleNode));
+                        scheduleAttrs = GetAttributes(scheduleNode);
                     }
                 }
 
-                results.Add(AnalyzerHelper.BuildRecord(GetAttributes(member), sectionName, schedule));
+                results.Add(AnalyzerHelper.BuildRecord(GetAttributes(member), sectionName, sectionAttrs, scheduleAttrs));
             }
         }
 
