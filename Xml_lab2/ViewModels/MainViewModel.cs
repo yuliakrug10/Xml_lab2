@@ -230,12 +230,26 @@ namespace Xml_lab2.ViewModels
                 throw new InvalidOperationException("Немає відфільтрованих даних для збереження. Спочатку виконайте пошук.");
             }
 
+            if (IsCurrentXml(path))
+            {
+                throw new InvalidOperationException("Не можна зберегти відфільтровані дані у відкритий XML-файл, бо він буде перезаписаний. Введіть іншу назву.");
+            }
+
             XmlBuilder builder = new XmlBuilder();
             string content = builder.BuildContent(data);
             _localFileManager.SaveToFile(content, path);
 
             _logger.LogEvent(LogLevel.Saving, "Збережено відфільтрований фрагмент у файл " + Path.GetFileName(path));
             StatusText = "Збережено: " + path;
+        }
+
+        public bool IsCurrentXml(string path)
+        {
+            if (_xmlFilePath == null)
+            {
+                return false;
+            }
+            return string.Equals(Path.GetFullPath(path), Path.GetFullPath(_xmlFilePath), StringComparison.OrdinalIgnoreCase);
         }
 
         public string GetDefaultSavePath(string fileName, string extension)

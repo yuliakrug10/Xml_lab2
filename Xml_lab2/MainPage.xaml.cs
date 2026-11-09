@@ -109,6 +109,14 @@ namespace Xml_lab2
                 if (!string.IsNullOrWhiteSpace(name))
                 {
                     string path = _viewModel.GetDefaultSavePath(name, ".xml");
+                    if (File.Exists(path) && !_viewModel.IsCurrentXml(path))
+                    {
+                        bool overwrite = await DisplayAlert("Збереження", "Файл " + Path.GetFileName(path) + " вже існує. Замінити його?", "Так", "Ні");
+                        if (!overwrite)
+                        {
+                            return;
+                        }
+                    }
                     _viewModel.SaveXml(path);
                     await DisplayAlert("Збереження", "Файл збережено: " + path, "OK");
                 }
