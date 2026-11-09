@@ -5,52 +5,117 @@
              xmlns:vm="clr-namespace:Xml_lab2.ViewModels"
              x:Class="Xml_lab2.MainPage"
              x:DataType="vm:MainViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light=#F4F2F8, Dark=#1B1A1F}"
              Title="Спорт на факультеті">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Padding="15" RowSpacing="10">
+    <ContentPage.Resources>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=#26242C}" />
+            <Setter Property="Stroke" Value="{AppThemeBinding Light=#E2DDEC, Dark=#36333F}" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+            <Setter Property="Padding" Value="14,12" />
+        </Style>
 
-        <HorizontalStackLayout Grid.Row="0" Spacing="8">
-            <Button Text="Відкрити XML" Clicked="OpenXml_Clicked" />
-            <Button Text="Відкрити XSL" Clicked="OpenXsl_Clicked" />
-            <Button Text="Відкрити з Google Drive" Clicked="OpenFromDrive_Clicked" />
-            <Label Text="{Binding FilesInfo}" VerticalOptions="Center" Margin="10,0,0,0" />
-        </HorizontalStackLayout>
+        <Style x:Key="CardTitle" TargetType="Label">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light=#6A5A8C, Dark=#B9A8E8}" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
 
-        <HorizontalStackLayout Grid.Row="1" Spacing="8">
-            <Picker Title="Аналізатор" WidthRequest="160" ItemsSource="{Binding Analyzers}" SelectedItem="{Binding SelectedAnalyzer}" />
-            <Picker Title="Атрибут" WidthRequest="180" ItemsSource="{Binding AttributeNames}" SelectedItem="{Binding SelectedAttribute}" />
-            <Picker Title="Значення" WidthRequest="200" ItemsSource="{Binding AttributeValues}" SelectedItem="{Binding SelectedAttributeValue}" />
-            <Entry Placeholder="Ключове слово" WidthRequest="230" Text="{Binding SearchKeyword}" />
-            <Button Text="Пошук" Clicked="Search_Clicked" />
-            <Button Text="Clear" Clicked="Clear_Clicked" />
-        </HorizontalStackLayout>
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Margin" Value="0,0,8,8" />
+            <Setter Property="Padding" Value="16,8" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="MinimumHeightRequest" Value="40" />
+        </Style>
 
-        <Label Grid.Row="2" Text="{Binding StatusText}" FontAttributes="Italic" />
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light=#512BD4, Dark=#C7B8F5}" />
+            <Setter Property="BorderColor" Value="{AppThemeBinding Light=#B9A8E8, Dark=#5B4E80}" />
+            <Setter Property="BorderWidth" Value="1" />
+        </Style>
 
-        <CollectionView Grid.Row="3" ItemsSource="{Binding SportsRecords}">
-            <CollectionView.EmptyView>
-                <Label Text="Немає результатів" HorizontalOptions="Center" Margin="20" />
-            </CollectionView.EmptyView>
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:SportRecord">
-                    <Border Padding="10" Margin="0,4" Stroke="LightGray">
-                        <VerticalStackLayout Spacing="2">
-                            <Label Text="{Binding StudentName}" FontAttributes="Bold" FontSize="16" />
-                            <Label Text="{Binding Faculty, StringFormat='Факультет: {0}'}" />
-                            <Label Text="{Binding SportSection, StringFormat='Секція: {0}'}" />
-                            <Label Text="{Binding Schedule, StringFormat='Графік: {0}'}" />
-                            <Label Text="{Binding Details}" TextColor="Gray" />
+        <Style x:Key="Field" TargetType="View">
+            <Setter Property="Margin" Value="0,0,8,8" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto" Padding="16,12" RowSpacing="10">
+
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Spacing="10">
+
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Спорт на факультеті" FontSize="24" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#3B2A73, Dark=#D9CDFB}" />
+                    <Label Text="{Binding FilesInfo}" FontSize="13" TextColor="{AppThemeBinding Light=#7A7486, Dark=#9C96A8}" LineBreakMode="TailTruncation" />
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Label Text="ФАЙЛИ" Style="{StaticResource CardTitle}" />
+                        <FlexLayout Wrap="Wrap" Direction="Row" AlignItems="Start" AlignContent="Start">
+                            <Button Text="Відкрити XML" Clicked="OpenXml_Clicked" Style="{StaticResource ActionButton}" />
+                            <Button Text="Відкрити XSL" Clicked="OpenXsl_Clicked" Style="{StaticResource ActionButton}" />
+                            <Button Text="Відкрити з Google Drive" Clicked="OpenFromDrive_Clicked" Style="{StaticResource SecondaryButton}" />
+                        </FlexLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Label Text="ПОШУК" Style="{StaticResource CardTitle}" />
+                        <FlexLayout Wrap="Wrap" Direction="Row" AlignItems="End" AlignContent="Start">
+                            <Picker Title="Аналізатор" WidthRequest="170" ItemsSource="{Binding Analyzers}" SelectedItem="{Binding SelectedAnalyzer}" Style="{StaticResource Field}" />
+                            <Picker Title="Атрибут" WidthRequest="190" ItemsSource="{Binding AttributeNames}" SelectedItem="{Binding SelectedAttribute}" Style="{StaticResource Field}" />
+                            <Picker Title="Значення" WidthRequest="200" ItemsSource="{Binding AttributeValues}" SelectedItem="{Binding SelectedAttributeValue}" Style="{StaticResource Field}" />
+                            <Entry Placeholder="Ключове слово" WidthRequest="220" Text="{Binding SearchKeyword}" Style="{StaticResource Field}" />
+                            <HorizontalStackLayout>
+                                <Button Text="Пошук" Clicked="Search_Clicked" Style="{StaticResource ActionButton}" />
+                                <Button Text="Clear" Clicked="Clear_Clicked" Style="{StaticResource SecondaryButton}" />
+                            </HorizontalStackLayout>
+                        </FlexLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="{Binding StatusText}" FontAttributes="Italic" FontSize="13" TextColor="{AppThemeBinding Light=#5D5670, Dark=#B3ADC0}" Margin="4,0" />
+
+                <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding SportsRecords}">
+                    <BindableLayout.EmptyView>
+                        <VerticalStackLayout HorizontalOptions="Center" Margin="20,40" Spacing="4">
+                            <Label Text="Немає результатів" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{AppThemeBinding Light=#7A7486, Dark=#9C96A8}" />
+                            <Label Text="Відкрийте XML-файл і натисніть «Пошук»" FontSize="13" HorizontalOptions="Center" TextColor="{AppThemeBinding Light=#9A94A6, Dark=#7F7A8A}" />
                         </VerticalStackLayout>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                    </BindableLayout.EmptyView>
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:SportRecord">
+                            <Border Style="{StaticResource Card}">
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="3">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="{Binding StudentName}" FontAttributes="Bold" FontSize="16" />
+                                    <Border Grid.Row="0" Grid.Column="1" BackgroundColor="{AppThemeBinding Light=#EDE7FB, Dark=#3A3256}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,2" VerticalOptions="Center">
+                                        <Label Text="{Binding SportSection}" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#512BD4, Dark=#D3C6FA}" />
+                                    </Border>
+                                    <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Faculty, StringFormat='Факультет: {0}'}" FontSize="13" />
+                                    <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding Schedule, StringFormat='Графік: {0}'}" FontSize="13" />
+                                    <Label Grid.Row="3" Grid.ColumnSpan="2" Text="{Binding Details}" FontSize="12" TextColor="{AppThemeBinding Light=#7A7486, Dark=#9C96A8}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
 
-        <HorizontalStackLayout Grid.Row="4" Spacing="8">
-            <Button Text="Трансформувати в HTML" Clicked="Transform_Clicked" />
-            <Button Text="Зберегти XML" Clicked="SaveXml_Clicked" />
-            <Button Text="Зберегти на Google Drive" Clicked="SaveToDrive_Clicked" />
-            <Button Text="Вийти" Clicked="Exit_Clicked" BackgroundColor="IndianRed" />
-        </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <FlexLayout Grid.Row="1" Wrap="Wrap" Direction="Row" AlignItems="Start" AlignContent="Start">
+            <Button Text="Трансформувати в HTML" Clicked="Transform_Clicked" Style="{StaticResource ActionButton}" />
+            <Button Text="Зберегти XML" Clicked="SaveXml_Clicked" Style="{StaticResource ActionButton}" />
+            <Button Text="Зберегти на Google Drive" Clicked="SaveToDrive_Clicked" Style="{StaticResource SecondaryButton}" />
+            <Button Text="Вийти" Clicked="Exit_Clicked" Style="{StaticResource ActionButton}" BackgroundColor="IndianRed" TextColor="White" />
+        </FlexLayout>
     </Grid>
 </ContentPage>
