@@ -106,27 +106,29 @@
 			</xsl:for-each>
 		</table>
 
-		<h3>План змагань</h3>
-		<table>
-			<tr>
-				<th>Назва</th>
-				<th>Дата</th>
-				<th>Місце</th>
-			</tr>
-			<xsl:for-each select="Competitions/Competition">
-				<xsl:sort select="@Date"/>
+		<xsl:if test="Competitions/Competition">
+			<h3>План змагань</h3>
+			<table>
 				<tr>
-					<td>
-						<xsl:value-of select="@Name"/>
-					</td>
-					<td>
-						<xsl:value-of select="@Date"/>
-					</td>
-					<td>
-						<xsl:value-of select="@Place"/>
-					</td>
+					<th>Назва</th>
+					<th>Дата</th>
+					<th>Місце</th>
 				</tr>
-			</xsl:for-each>
-		</table>
+				<xsl:for-each select="Competitions/Competition">
+					<xsl:sort select="@Date"/>
+					<tr>
+						<td>
+							<xsl:value-of select="@Name"/>
+						</td>
+						<td>
+							<xsl:value-of select="@Date"/>
+						</td>
+						<td>
+							<xsl:value-of select="@Place"/>
+						</td>
+					</tr>
+				</xsl:for-each>
+			</table>
+		</xsl:if>
 	</xsl:template>
 </xsl:stylesheet>

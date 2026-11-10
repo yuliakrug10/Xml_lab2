@@ -32,6 +32,13 @@ namespace Xml_lab2.ViewModels
         private string _selectedAttributeValue;
         private string _searchKeyword = "";
         private string _statusText = "Відкрийте XML-файл";
+        private bool _hasSearched;
+        private string _lastHtmlCopyPath;
+
+        public string LastHtmlCopyPath
+        {
+            get { return _lastHtmlCopyPath; }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -279,6 +286,7 @@ namespace Xml_lab2.ViewModels
             List<SportRecord> results = _analyzerStrategy.Analyze(_xmlFilePath, attributeName, SelectedAttributeValue, SearchKeyword);
 
             UpdateView(results);
+            _hasSearched = true;
 
             _logger.LogEvent(LogLevel.Filtering, "Параметри: " + DescribeSearch() + ". Знайдено записів: " + results.Count);
         }
@@ -330,16 +338,43 @@ namespace Xml_lab2.ViewModels
                 throw new InvalidOperationException("Спочатку відкрийте XML і XSL файли.");
             }
 
+            string sourcePath = _xmlFilePath;
             string outHtmlPath = Path.ChangeExtension(_xmlFilePath, ".html");
-            bool success = _transformer.Transform(_xmlFilePath, _xslFilePath, outHtmlPath);
+            string description = "весь файл " + Path.GetFileName(_xmlFilePath);
+
+            if (_hasSearched)
+            {
+                List<SportRecord> data = new List<SportRecord>(_sportsRecords);
+                if (data.Count == 0)
+                {
+                    throw new InvalidOperationException("Пошук не знайшов жодного запису, тому трансформувати нічого. Змініть параметри або натисніть Clear, щоб трансформувати весь файл.");
+                }
+
+                sourcePath = Path.Combine(GetAppFolder("Transform"), "filtered.xml");
+                XmlBuilder builder = new XmlBuilder();
+                _localFileManager.SaveToFile(builder.BuildContent(data), sourcePath);
+
+                string folder = Path.GetDirectoryName(_xmlFilePath);
+                outHtmlPath = Path.Combine(folder, Path.GetFileNameWithoutExtension(_xmlFilePath) + "_filtered.html");
+                description = "результати пошуку (записів: " + data.Count + ")";
+            }
+
+            bool success = _transformer.Transform(sourcePath, _xslFilePath, outHtmlPath);
             if (!success)
             {
                 throw new Exception("Помилка трансформації: " + _transformer.LastError);
             }
 
-            _logger.LogEvent(LogLevel.Transformation, "Збережено у файл " + Path.GetFileName(outHtmlPath));
-            StatusText = "Трансформація успішна: " + outHtmlPath;
+            _logger.LogEvent(LogLevel.Transformation, "Трансформовано " + description + ". Збережено у файл " + Path.GetFileName(outHtmlPath));
+            StatusText = "Трансформовано " + description + ": " + outHtmlPath;
             return outHtmlPath;
+        }
+
+        private static string GetAppFolder(string name)
+        {
+            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Xml_lab2", name);
+            Directory.CreateDirectory(folder);
+            return folder;
         }
 
         private async Task ConnectDriveAsync()
@@ -365,9 +400,7 @@ namespace Xml_lab2.ViewModels
             await ConnectDriveAsync();
             string content = await _drive.DownloadFileAsync(fileId);
 
-            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Xml_lab2", "Drive");
-            Directory.CreateDirectory(folder);
-            string localPath = Path.Combine(folder, Path.GetFileName(fileName));
+            string localPath = Path.Combine(GetAppFolder("Drive"), Path.GetFileName(fileName));
             _localFileManager.SaveToFile(content, localPath);
 
             if (isXsl)
@@ -394,6 +427,14 @@ namespace Xml_lab2.ViewModels
 
             CloudDocumentSaver saver = CreateSaver(format);
             string savedName = await saver.SaveAsync(data, fileName, _drive);
+
+            _lastHtmlCopyPath = null;
+            if (format == "HTML")
+            {
+                HtmlBuilder htmlBuilder = new HtmlBuilder();
+                _lastHtmlCopyPath = Path.Combine(GetAppFolder("Drive"), savedName);
+                _localFileManager.SaveToFile(htmlBuilder.BuildContent(data), _lastHtmlCopyPath);
+            }
 
             _logger.LogEvent(LogLevel.Saving, "Відфільтровані дані збережено на Google Drive у файл " + savedName);
             StatusText = "Збережено на Google Drive: " + savedName;
@@ -438,6 +479,7 @@ namespace Xml_lab2.ViewModels
         public void ClearData()
         {
             _sportsRecords.Clear();
+            _hasSearched = false;
             SelectedAttribute = null;
             SearchKeyword = "";
             StatusText = "Результати і параметри пошуку очищено";

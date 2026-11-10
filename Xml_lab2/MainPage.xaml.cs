@@ -194,6 +194,11 @@ namespace Xml_lab2
                         return;
                     }
                     savedName = await _viewModel.SaveFilteredToDriveAsync(format, name);
+
+                    if (format == "HTML" && _viewModel.LastHtmlCopyPath != null)
+                    {
+                        await Launcher.Default.OpenAsync(new OpenFileRequest("HTML", new ReadOnlyFile(_viewModel.LastHtmlCopyPath)));
+                    }
                 }
                 else if (choice == sourceXml)
                 {
